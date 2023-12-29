@@ -108,3 +108,23 @@ public enum Base58 {
     return [UInt8](res as Data)
   }
 }
+
+extension Base58 {
+    public static func isValidBase58Check(_ string: String) -> Bool {
+        guard let decodedData = base58Decode(string) else {
+            return false
+        }
+
+        guard decodedData.count >= checksumLength else {
+            return false
+        }
+        
+        let checksum = calculateChecksum(decodedData)
+
+        var hash = sha256(decodedData)
+        hash = sha256(hash)
+
+        let expectedChecksum = hash.prefix(checksumLength)
+        return checksum.elementsEqual(expectedChecksum)
+    }
+}
